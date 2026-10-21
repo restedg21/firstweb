@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planets and Dwarf Planets</title>
+<style>
+:root {
+  --bg: #222;
+  --ink: #111;
+  --cream: #f5eddc;
+  --muted: #9a9a9a;
+  --sun: #ffb61f;
+  --sun-hot: #ff6a1a;
+  --sun-ink: #3a1200;
+  --f-display: Impact, 'Arial Black', sans-serif;
+  --f-body: 'Times New Roman', Times, serif;
+  --u: min(72px, (100vw - 260px) / 20.5);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+h1, h2, p { margin: 0; }
+.page {
+  min-height: 100%;
+  display: flex; flex-direction: column; justify-content: flex-start;
+  padding: 24px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px));
+}
+
+.top { text-align: center; padding-bottom: 22px; }
+.top h1 { font-family: var(--f-display); font-weight: 400; text-transform: uppercase; font-size: clamp(38px, 6.5vw, 84px); line-height: 1.05; color: #fff; }
+.top p { margin-top: 10px; font-family: Arial, sans-serif; font-weight: 700; font-size: 18px; color: #fff; }
+
+.system {
+  margin-block: auto;
+  display: flex; align-items: stretch;
+  padding-right: 12px;
+  overflow: hidden;
+  position: relative;
+}
+.sun {
+  flex: 0 0 auto; position: relative;
+  width: clamp(110px, 11vw, 180px);
+  align-self: center;
+  aspect-ratio: 1 / 2;
+  border-radius: 0 999px 999px 0;
+  background: url(https://files.catbox.moe/hfgbuw.png) right center / auto 100% no-repeat, radial-gradient(circle at 0% 50%, #fff6b8 0%, #ffd24a 25%, var(--sun) 50%, var(--sun-hot) 82%, #bf2c0c 100%);
+  display: grid; align-content: center;
+  padding-left: 14px;
+  color: var(--sun-ink); font-family: var(--f-display); text-transform: uppercase; font-size: clamp(18px, 1.8vw, 28px); line-height: 1.05;
+  z-index: 1;
+}
+
+.worlds {
+  flex: 1; min-width: 0; position: relative;
+  display: flex;
+  padding-block: 24px;
+}
+.worlds::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%;
+  border-top: 2px dashed rgba(255, 255, 255, 0.13);
+}
+
+.w {
+  flex: var(--g, 1) 1 0; min-width: 0;
+  display: grid; grid-template-rows: 80px calc(var(--u) * 2) 80px;
+  justify-items: center; align-content: center;
+  cursor: pointer; position: relative;
+  outline: none;
+}
+.w:focus-visible { outline: 2px solid var(--cream); outline-offset: -2px; }
+.lab { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; white-space: nowrap; }
+.planet .lab { grid-row: 1; justify-content: flex-end; }
+.dwarf .lab { grid-row: 3; justify-content: flex-start; }
+.nm { font-family: var(--f-display); font-weight: 400; text-transform: uppercase; color: var(--c); font-size: clamp(13px, 1.3vw, 20px); line-height: 1.05; }
+.au { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--muted); white-space: normal; line-height: 1.1; }
+.dwarf .nm { font-size: clamp(11px, 1vw, 16px); }
+
+.mid { grid-row: 2; display: grid; place-items: center; width: 100%; }
+.planet .lab::after, .dwarf .lab::before { content: ""; width: 0; height: 12px; border-left: 2px dotted var(--c); opacity: 0.7; margin-block: 4px; }
+.dwarf .lab::before { order: -1; }
+
+.orb { position: relative; width: var(--wd, var(--d)); height: var(--d); --d: max(10px, var(--s) * var(--u)); --wd: max(10px, var(--sw, var(--s)) * var(--u)); }
+.ball {
+  position: absolute; inset: 0; z-index: 1; border-radius: 50%;
+  background: var(--c);
+  box-shadow: inset -0.12em -0.14em 0.5em rgba(0, 0, 0, 0.45);
+  font-size: var(--d);
+}
+.dwarf .ball { outline: 1.5px dashed color-mix(in srgb, var(--c) 70%, transparent); outline-offset: 4px; }
+.orb img { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; max-width: none; object-fit: contain; visibility: hidden; }
+.orb.has-img img { visibility: visible; }
+.orb.has-img .ball, .orb.has-img .ring { display: none; }
+
+.ball.mercury { background: radial-gradient(circle at 62% 62%, rgba(0,0,0,.22) 0 7%, transparent 8%), radial-gradient(circle at 36% 68%, rgba(0,0,0,.18) 0 5%, transparent 6%), radial-gradient(circle at 32% 30%, #dbd0c2, #9c8f81 55%, #5f564d); }
+.ball.venus { background: radial-gradient(circle at 32% 30%, #fbe3a6, #e0a94c 55%, #8f5b1c); }
+.ball.earth { background: radial-gradient(circle at 62% 56%, #47a557 0 17%, transparent 18%), radial-gradient(circle at 28% 66%, #47a557 0 12%, transparent 13%), radial-gradient(circle at 40% 24%, #47a557 0 9%, transparent 10%), radial-gradient(circle at 35% 30%, #63b9ff, #1f5fc4 60%, #0d2f78); }
+.ball.mars { background: radial-gradient(circle at 32% 30%, #ff9a6b, #c8512b 55%, #6e2412); }
+.ball.ceres { background: radial-gradient(circle at 64% 40%, #fff 0 8%, transparent 9%), radial-gradient(circle at 32% 30%, #e2e2e2, #8c8c8c 60%, #4d4d4d); }
+.ball.jupiter {
+  background:
+    radial-gradient(ellipse 22% 13% at 66% 66%, #b8382a 0 60%, transparent 72%),
+    radial-gradient(circle at 32% 30%, rgba(255,255,255,.28), transparent 45%, rgba(0,0,0,.4) 100%),
+    linear-gradient(180deg, #7a4a2a 0 8%, #e9c9a0 8% 16%, #b97a4c 16% 26%, #f1dcc0 26% 36%, #a8653a 36% 46%, #e9c9a0 46% 58%, #c58a58 58% 68%, #f1dcc0 68% 78%, #9b5d36 78% 90%, #d9b48a 90%);
+}
+.ball.saturn { background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.25), transparent 50%), linear-gradient(180deg, #c49a52 0 18%, #f0d891 18% 34%, #d9b469 34% 52%, #f7e4a8 52% 70%, #b98f48 70% 100%); }
+.ball.uranus { background: radial-gradient(circle at 32% 30%, #c9f7f7, #6fd3d9 55%, #2d8c97); }
+.ball.neptune { background: radial-gradient(circle at 32% 30%, #a8bbff, #3f59d8 55%, #1a2a80); }
+.ball.pluto { background: radial-gradient(circle at 32% 30%, #e7c8a8, #b88a68 55%, #6b4a33); }
+.ball.pluto::after { content: "\2665"; position: absolute; right: 12%; bottom: 14%; font-size: 0.45em; line-height: 1; color: #ffd9d4; }
+.ball.haumea { background: radial-gradient(circle at 30% 30%, #fff6dc, #dccfa6 55%, #8e8466); }
+.ball.quaoar { background: radial-gradient(circle at 32% 30%, #d98a6a, #9c4a33 55%, #4f2216); }
+.ball.makemake { background: radial-gradient(circle at 32% 30%, #f0c0a0, #b9714f 55%, #5e3322); }
+.ball.eris { background: radial-gradient(circle at 32% 30%, #fff, #cfd6dd 55%, #7c8794); }
+
+.ring { position: absolute; z-index: 0; left: -40%; right: -40%; top: 26%; bottom: 26%; border-radius: 50%; border: max(3px, calc(var(--u) * 0.07)) solid rgba(236, 210, 139, 0.85); transform: rotate(-16deg); }
+.ring.front { z-index: 2; clip-path: inset(50% 0 0 0); }
+.ring.far { left: -55%; right: -55%; top: -55%; bottom: -55%; transform: none; border: 1.5px dashed rgba(199, 161, 255, 0.6); }
+
+.bar {
+  position: sticky; bottom: 0; z-index: 5;
+  margin-top: 8px;
+  display: flex; align-items: baseline; gap: 14px;
+  min-height: 52px; padding: 12px 18px;
+  background: #000; color: #fff;
+}
+.bar b { flex: none; font-family: var(--f-display); font-weight: 400; text-transform: uppercase; font-size: 24px; line-height: 1; color: var(--c, #fff); }
+.bar i { flex: none; font-style: normal; font-size: 14px; font-weight: 700; color: #aaa; }
+.bar span { min-width: 0; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+<header class="top">
+  <h1>Planets and Dwarf Planets</h1>
+  <p>hover on a planet to see a fact!!</p>
+</header>
+
+<main class="system">
+  <div class="sun" id="sun">The Sun</div>
+
+  <div class="worlds">
+
+  <article class="w planet" tabindex="0" data-au="0.39 AU" style="--c:#c9b8a5; --s:0.32" data-fact="One day lasts 176 Earth days. bro takes six months to finish one shift.">
+    <div class="lab"><h2 class="nm">Mercury</h2></div>
+    <div class="mid"><div class="orb"><div class="ball mercury"></div><img src="https://files.catbox.moe/w5pq5u.png" alt="1"></div></div>
+  </article>
+
+  <article class="w planet" tabindex="0" data-au="0.72 AU" style="--c:#f0c36a; --s:0.5" data-fact="465&deg;C on the surface, and it spins backward. earth's toxic ex.">
+    <div class="lab"><h2 class="nm">Venus</h2></div>
+    <div class="mid"><div class="orb"><div class="ball venus"></div><img src="https://i.ibb.co/h1fhNdQf/venus.png" alt="2"></div></div>
+  </article>
+
+  <article class="w planet" tabindex="0" data-au="1 AU" style="--c:#6fc3ff; --s:0.51" data-fact="71% water, and people still pay &#8377;40 for bottled water.">
+    <div class="lab"><h2 class="nm">Earth</h2></div>
+    <div class="mid"><div class="orb"><div class="ball earth"></div><img src="https://files.catbox.moe/ol4o45.png" alt="3"></div></div>
+  </article>
+
+  <article class="w planet" tabindex="0" data-au="1.52 AU" style="--c:#ff8a5c; --s:0.37" data-fact="Olympus Mons is about 3&times; taller than Everest. bro peaked in his youth.">
+    <div class="lab"><h2 class="nm">Mars</h2></div>
+    <div class="mid"><div class="orb"><div class="ball mars"></div><img src="https://i.ibb.co/MyvkFtF4/mars.png" alt="4"></div></div>
+  </article>
+
+  <article class="w dwarf" tabindex="0" data-au="2.77 AU" style="--c:#d8e2dc; --s:0.14" data-fact="Planet, then asteroid, now dwarf planet. more rebrands than a startup.">
+    <div class="lab"><h2 class="nm">Ceres</h2><span class="au">Dwarf planet</span></div>
+    <div class="mid"><div class="orb"><div class="ball ceres"></div><img src="https://files.catbox.moe/puk3jz.png" alt="5"></div></div>
+  </article>
+
+  <article class="w planet" tabindex="0" data-au="5.20 AU" style="--c:#f2b07a; --s:1.7; --g:2" data-fact="Over twice the mass of every other planet combined. bro walks into the gym and becomes the gym.">
+    <div class="lab"><h2 class="nm">Jupiter</h2></div>
+    <div class="mid"><div class="orb"><div class="ball jupiter"></div><img src="https://files.catbox.moe/xf41z2.png" alt="6"></div></div>
+  </article>
+
+  <article class="w planet" tabindex="0" data-au="9.5 AU" style="--c:#ecd28b; --s:1.55; --sw:3.9; --g:3.8" data-fact="Less dense then water. in a big enough bathtub, it would float.">
+    <div class="lab"><h2 class="nm">Saturn</h2></div>
+    <div class="mid"><div class="orb"><span class="ring back"></span><div class="ball saturn"></div><span class="ring front"></span><img src="https://i.ibb.co/RkV6SypW/saturn.png" alt="7"></div></div>
+  </article>
+
+  <article class="w planet" tabindex="0" data-au="19.2 AU" style="--c:#7be3e8; --s:1.02; --g:1.2" data-fact="Tilted 98&deg;, it rolls around on its side. got knocked over and stayed that way.">
+    <div class="lab"><h2 class="nm">Uranus</h2></div>
+    <div class="mid"><div class="orb"><div class="ball uranus"></div><img src="https://files.catbox.moe/0tut4g.png" alt="8"></div></div>
+  </article>
+
+  <article class="w planet" tabindex="0" data-au="30.1 AU" style="--c:#8aa2ff; --s:1.01; --g:1.2" data-fact="Winds hit about 2,000 km/h. the forecast is just &ldquo;good luck.&rdquo;">
+    <div class="lab"><h2 class="nm">Neptune</h2></div>
+    <div class="mid"><div class="orb"><div class="ball neptune"></div><img src="https://files.catbox.moe/fas8bb.png" alt="9"></div></div>
+  </article>
+
+  <article class="w dwarf" tabindex="0" data-au="39.5 AU" style="--c:#ff9fb2; --s:0.22" data-fact="Demoted in 2006 after 76 years as a planet. still has a heart on its surfice.">
+    <div class="lab"><h2 class="nm">Pluto</h2><span class="au">Dwarf planet</span></div>
+    <div class="mid"><div class="orb"><div class="ball pluto"></div><img src="https://i.ibb.co/GfCdwqsh/pluto.png" alt="10"></div></div>
+  </article>
+
+  <article class="w dwarf" tabindex="0" data-au="43.1 AU" style="--c:#f3e5b3; --s:0.21; --sw:0.24" data-fact="Spins once every 4 hours, stretched like a rugby ball. on 2x playback.">
+    <div class="lab"><h2 class="nm">Haumea</h2><span class="au">Dwarf planet</span></div>
+    <div class="mid"><div class="orb"><div class="ball haumea"></div><img src="https://i.ibb.co/Pzt8C7zc/haumea.png" alt="11"></div></div>
+  </article>
+
+  <article class="w dwarf" tabindex="0" data-au="43.7 AU" style="--c:#c7a1ff; --s:0.15" data-kind="Candidate dwarf" data-fact="Has a ring way farther out than rings should survive. ignoring the assignment.">
+    <div class="lab"><h2 class="nm">Quaoar</h2><span class="au">Candidate dwarf</span></div>
+    <div class="mid"><div class="orb"><span class="ring far"></span><div class="ball quaoar"></div><img src="https://files.catbox.moe/ct8lxq.png" alt="12"></div></div>
+  </article>
+
+  <article class="w dwarf" tabindex="0" data-au="45.8 AU" style="--c:#9ae6d0; --s:0.17" data-fact="Sunlight there is about 2,000&times; fainter than on Earth. existensial darkness.">
+    <div class="lab"><h2 class="nm">Makemake</h2><span class="au">Dwarf planet</span></div>
+    <div class="mid"><div class="orb"><div class="ball makemake"></div><img src="https://i.ibb.co/kVjWfCT0/makemake.png" alt="13"></div></div>
+  </article>
+
+  <article class="w dwarf" tabindex="0" data-au="67.8 AU" style="--c:#ffd166; --s:0.22" data-fact="More massive than Pluto. the reason Pluto got fired.">
+    <div class="lab"><h2 class="nm">Eris</h2><span class="au">Dwarf planet</span></div>
+    <div class="mid"><div class="orb"><div class="ball eris"></div><img src="https://files.catbox.moe/ap3jl6.png" alt="14"></div></div>
+  </article>
+
+  </div>
+</main>
+
+<footer class="bar idle" id="bar" aria-live="polite"><b id="bar-name">Pick a world</b><i id="bar-kind"></i><span id="bar-fact">hover a planet or dwarf planet to see a fact here</span></footer>
+</div>
+
+<script>
+(function () {
+  var bar = document.getElementById('bar');
+  var nameEl = document.getElementById('bar-name');
+  var kindEl = document.getElementById('bar-kind');
+  var factEl = document.getElementById('bar-fact');
+  var worlds = document.querySelectorAll('.w');
+  var pinned = null;
+
+  function show(w) {
+    worlds.forEach(function (x) { x.classList.toggle('on', x === w); });
+    if (!w) {
+      bar.classList.add('idle');
+      nameEl.textContent = 'Pick a world';
+      kindEl.textContent = '';
+      factEl.textContent = 'hover a planet or dwarf planet to see a fact here';
+      return;
+    }
+    bar.classList.remove('idle');
+    bar.style.setProperty('--c', getComputedStyle(w).getPropertyValue('--c'));
+    nameEl.textContent = w.querySelector('.nm').textContent;
+    var au = w.dataset.au;
+    kindEl.textContent = (w.dataset.kind || (w.classList.contains('dwarf') ? 'Dwarf planet' : 'Planet')) + ' \u00b7 ' + au;
+    factEl.textContent = w.dataset.fact;
+  }
+
+  worlds.forEach(function (w) {
+    w.addEventListener('mouseenter', function () { show(w); });
+    w.addEventListener('mouseleave', function () { show(pinned); });
+    w.addEventListener('focus', function () { show(w); });
+    w.addEventListener('blur', function () { show(pinned); });
+    w.addEventListener('click', function (e) {
+      e.stopPropagation();
+      pinned = pinned === w ? null : w;
+      show(pinned || w);
+    });
+    w.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { pinned = null; w.blur(); show(null); }
+    });
+  });
+
+  document.addEventListener('click', function () { pinned = null; show(null); });
+
+  document.querySelectorAll('.orb img').forEach(function (img) {
+    function ok() { img.parentNode.classList.add('has-img'); }
+    function bad() { img.remove(); }
+    if (img.complete) { (img.naturalWidth > 0 ? ok : bad)(); }
+    else { img.addEventListener('load', ok); img.addEventListener('error', bad); }
+  });
+})();
+</script>
+</body>
+</html>
